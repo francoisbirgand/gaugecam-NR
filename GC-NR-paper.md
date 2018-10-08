@@ -1,7 +1,7 @@
 ---
-title: "Performance of the GaugeCam image-based water level measurement system"
+title: "Field performance of the GaugeCam image-based water level measurement system"
 author: François Birgand, Ken Chapman, Arnab Hazra, Troy Gilmore, Andrew Brown, Ana-Maria Staicu
-date: '05 October, 2018'
+date: '08 October, 2018'
 documentclass: article
 output: 
   bookdown::html_document2:
@@ -16,7 +16,7 @@ output:
     fig_width: 4
     fig_height: 3
     fig_caption: true
-bibliography: [articleFWM.bibtex]
+bibliography: [articleGC-NR.bibtex]
 biblio-style: apalike
 pandoc_args: [ "--csl", "hydrological-processes.csl" ]
 link-citations: yes
@@ -47,11 +47,52 @@ link-citations: yes
 
 # Method
 
+## Measurement principles
+
+- The principle is that water forms a very crisp water line on a white or light grey colored vertical target installed in a water body. This is particularly visible in an image taken in the general horizontal direction.  Because of the light absorption of water (even if it is transparent), the pixels in the image have a dark shade, and usually much darker than a the vertical light colored (white or very light grey) background used as a target. The sharp contrast in the pixel grey scale at the water line is used for automatic detection of the water line.
+- 
+
+
+
+### Background 
+
+## Field site details
+
+- Constructed tidal marsh with diurnal tides of max 1.2m tidal amplitude
+- Images obtained over a span of xx months
+- Camera type, lense type
+- Camera installed at xx m from the background with a x mm lense for a final resolution of yy mm per pixel
+- Camera installed a zz m in altitude, and this much higher than the top and bottom of background. At the end, the was this downward angle for the top of the background and this angle for the bottom of the background.
+- Insert figure here.
+- Maybe we should have an objective measure of the fish eye effect here as well
+
+
+
+### Image processing principles
+
+### Statistical analysis
+
+- 1000 images 'manually' read compared with automatic detection.
+- Statistical models used
+- Factors tested: angle, day/night, seasons
+
 # Results
+
+- 
+- Day and night images
+- Statistical results on the significance 
+- percentage of the time that an image is found
+- observed problems
 
 # Discussion
 
+- We will need to discuss the range (only 1.2 m) in this application
+
 # Conclusion
+
+# Acknowledgment
+
+- Dr. Randall Etheridge for retrieving the SD card
 
 # References
 
