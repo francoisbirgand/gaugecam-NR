@@ -1,7 +1,7 @@
 ---
 title: "Field performance of the GaugeCam image-based water level measurement system"
 author: François Birgand, Ken Chapman, Arnab Hazra, Troy Gilmore, Andrew Brown, Ana-Maria Staicu
-date: '08 October, 2018'
+date: '09 October, 2018'
 documentclass: article
 output: 
   bookdown::html_document2:
@@ -49,8 +49,19 @@ link-citations: yes
 
 ## Measurement principles
 
-- The principle is that water forms a very crisp water line on a white or light grey colored vertical target installed in a water body. This is particularly visible in an image taken in the general horizontal direction.  Because of the light absorption of water (even if it is transparent), the pixels in the image have a dark shade, and usually much darker than a the vertical light colored (white or very light grey) background used as a target. The sharp contrast in the pixel grey scale at the water line is used for automatic detection of the water line.
-- 
+- The first principle is that water forms a very crisp water line on a white or light grey colored vertical target plan installed in a water body. This is particularly visible in an image taken in the general horizontal direction towards the target.  Because of the light absorption of water (even if it is transparent), the pixels in such an image corresponding to water have a dark shade, and usually much darker than a the vertical light colored (white or very light grey) background used as a target. The sharp contrast in the pixel grey scale above and below the water line is used for automatic detection of the water line.
+- The second principle of the GaugeCam system is the ability to automatically translate the location of the water line calculated in the pixel coordinates into real world coordinates. For this, the GaugeCam system uses a set of eight bow ties shaped fiducials placed in two columns of four rows, and leaving a blank column between the two column fiducials (Figure \@ref(fig:GC-background)). The GaugeCam software automatically detects the center of the fiducials, which real world coordinates are known. By linear interpolation between each of the fiducial centers, the real world coordinates of each pixel in an image can be calculated (details below). 
+
+</br>
+
+<div class="figure" style="text-align: center">
+<img src="pictures/GC_background.png" alt="Target background (dimensions 1.2m&amp;times;0.9m) with bowties fiducials located in two columns and four rows leaving a blank column in between where the water line is automatically detected" width="50%" />
+<p class="caption">(\#fig:GC-background)Target background (dimensions 1.2m&times;0.9m) with bowties fiducials located in two columns and four rows leaving a blank column in between where the water line is automatically detected</p>
+</div>
+</br>
+
+
+
 
 
 

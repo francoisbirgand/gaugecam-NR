@@ -69,12 +69,15 @@ rmarkdown::default_output_format(knitr::current_input())$name
 
 ## Measurement principles
 
-- The principle is that water forms a very crisp water line on a white or light grey colored vertical target installed in a water body. This is particularly visible in an image taken in the general horizontal direction.  Because of the light absorption of water (even if it is transparent), the pixels in the image have a dark shade, and usually much darker than a the vertical light colored (white or very light grey) background used as a target. The sharp contrast in the pixel grey scale at the water line is used for automatic detection of the water line.
-- 
+- The first principle is that water forms a very crisp water line on a white or light grey colored vertical target plan installed in a water body. This is particularly visible in an image taken in the general horizontal direction towards the target.  Because of the light absorption of water (even if it is transparent), the pixels in such an image corresponding to water have a dark shade, and usually much darker than a the vertical light colored (white or very light grey) background used as a target. The sharp contrast in the pixel grey scale above and below the water line is used for automatic detection of the water line.
+- The second principle of the GaugeCam system is the ability to automatically translate the location of the water line expressed in the pixel coordinates into real world coordinates. For this, the GaugeCam system uses a set of eight bow ties shaped fiducials placed in two columns of four rows, and leaving a blank column between the two column fiducials (Figure \@ref(fig:GC-background)). The GaugeCam software automatically detects the center of the fiducials, which real world coordinates are known. By linear interpolation between each of the fiducial centers, the real world coordinates of each pixel in an image can be calculated (details below). 
 
+</br>
 
-
-### Background 
+```{r "GC-background", eval=TRUE, echo=FALSE, out.width = '50%', fig.align = 'center', fig.cap="Target background (dimensions 1.2m&times;0.9m) with bowties fiducials located in two columns and four rows leaving a blank column in between where the water line is automatically detected"}
+knitr::include_graphics("pictures/GC_background.png")
+```
+</br>
 
 ## Field site details
 
@@ -89,6 +92,11 @@ rmarkdown::default_output_format(knitr::current_input())$name
 
 
 ### Image processing principles
+
+- The reference image
+    - Chosen to have all fiducials visible
+    - In the reference image, the linear interpolation of the pixel to world coordinates is established.
+- All images are first superimposed to the reference image. We have observed that despite the apparent sturdiness of cameras installed in the field, the cameras over time tend to move a little bit, shifting images a bit (e.g., one to several pixels). To superimpose all images to the reference image, the top two fiducial centers are matched (exact procedure needs to be explained here).
 
 ### Statistical analysis
 
