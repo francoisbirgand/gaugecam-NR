@@ -1,7 +1,7 @@
 ---
 title: "Field performance of the GaugeCam image-based water level measurement system"
-author: François Birgand, Ken Chapman, Arnab Hazra, Troy Gilmore, Andrew Brown, Ana-Maria Staicu
-date: '09 October, 2018'
+author: François Birgand, Ken Chapman, Arnab Hazra, Troy Gilmore, Andrew Brown, Randall Etheridge, Ana-Maria Staicu
+date: '28 May, 2020'
 documentclass: article
 output: 
   bookdown::html_document2:
@@ -45,27 +45,36 @@ link-citations: yes
 - The GaugeCam system uses images streaming from the field at a high frequency basis to a server where the images are analyzed and a water level measurement made. The system then stores both the measurement and the images corresponding to each measurement.
 - The article reports the field performance and calculates the uncertainty of the system in the field
 
+In hydrology, it is an important problem to study how the river water level varies across time. As it is difficult to observe some time series data at different locations of the river manually, a device called GaugeCam is often used which captures images of the water level once in every 15 minutes. In every image, there is a scale reading that can be visually read from the images and it is considered to be the true value. The device also reports a value to the server automatically. We call the difference between the automatically reported value and the true value, i.e. the bias to be the ``GaugeCam error". Besides the issues of malfunctioning of the instrument, there are several possible micro-scale physical factors which can affect the bias, e.g. whether the observations are obtained during the daytime or at night because of the difference in the light diffraction. We test the significance of such factors on the GaugeCam error. We calculate 70\%, 80\%, 90\% and 95\% confidence intervals of the bias values separately under different physical conditions. 
+Instead of partitioning the data into classes, we adjust the study design in terms of indicators which alleviates the loss of information issues as well as consider the time series structure which makes our study more realistic.
+
+It is an important problem in hydrology to study how the river water level varies across time particularly from the agricultural point of view. Often a river to be studied has a very long stretch and to measure the water level quite accurately across the river, the experimenter needs to observe multiple time series sequences at various geographical locations of the river. In practice it is a very difficult task to do and a device called GaugeCam is often used to observe the water level automatically. The device captures images of the water level once in every 15 minutes. In every image, there is a scale reading that can be visually read from the images which is considered to be the true value and the device also reports a value to the server automatically. The success of the instrument can be accessed in terms of the difference between the automatically reported value and the true value, i.e. the bias to be the ``GaugeCam error". One possible reason behind the high bias is the malfunctioning of the instrument which is possible because of several reasons, e.g. very high tide, very strong wind, high rainfall etc. Besides these, there are several possible micro-scale physical factors which can affect the bias, e.g. whether the observations are obtained during the daytime (between 8:30 AM and 5:45 PM) or at night (between 7:45 PM and 4:30 AM next day), whether the actual water level is high or small etc. 
+
+\subsection{Motivation}
+Identifying the physical factors and considering them into the study is very important for any statistical analysis and hence before delving deeper into the statistical formulation, we discuss the sources of variability. The measurements really depend on the effect of the light diffraction at the meniscus when water touches the flat background, and the interpretation of the camera to define the gray level in each pixel of the pictures. Consequently, we expect that the measurements should somewhat vary, and therefore the errors are dependent on the angle between the lighting angle (sun or infrared illuminator), and the light intensity (the camera interprets the pixels differently during daytime and night time). Because of the optical distortion due to the lenses, there is more distortion when the measurements are done at a larger angle compared to the horizontal line. In our case, when the measurements are low (e.g., less than 30 cm), the angle is higher compared to the case when the measurements are high (greater than 70 cm). Also, for the night pictures, a mechanical filter does come on and off, which creates very small movement of the camera. There is an in-built software that corrects it as it overlays all the images onto a reference one before it does the analysis, but this is done on a one pixel resolution, which in our case is about 2.5 mm, or any general error that we estimated using very crude initial analysis. In other words, even if this correction is good, it does add its own error which motivates us to evaluate it.
+
+
 # Method
 
 ## Measurement principles
 
-- The first principle is that water forms a very crisp water line on a white or light grey colored vertical target plan installed in a water body. This is particularly visible in an image taken in the general horizontal direction towards the target.  Because of the light absorption of water (even if it is transparent), the pixels in such an image corresponding to water have a dark shade, and usually much darker than a the vertical light colored (white or very light grey) background used as a target. The sharp contrast in the pixel grey scale above and below the water line is used for automatic detection of the water line.
-- The second principle of the GaugeCam system is the ability to automatically translate the location of the water line calculated in the pixel coordinates into real world coordinates. For this, the GaugeCam system uses a set of eight bow ties shaped fiducials placed in two columns of four rows, and leaving a blank column between the two column fiducials (Figure \@ref(fig:GC-background)). The GaugeCam software automatically detects the center of the fiducials, which real world coordinates are known. By linear interpolation between each of the fiducial centers, the real world coordinates of each pixel in an image can be calculated (details below). 
+- The first principle is that water forms a very crisp water line on a white or light grey colored vertical target plan installed in a water body. This is particularly visible in an image taken in the general horizontal direction towards the target.  Because of the light absorption of water (even if it is transparent), the pixels in such an image corresponding to water have a dark shade, and usually much darker than those of the vertical light colored (white or very light grey) background used as a target. The sharp contrast in the pixel grey scale above and below the water line is used for automatic detection of the water line.
+- From our previous paper:
+
+> Water level detection is performed with a machine vision tool called an edge detector [e.g., @Mare1980-kl; @Torre1986-ez]. On a defined area of an image where the water level draws a line against a flat background, each pixel column is scanned from top to bottom to detect sharp changes in the pixels gray scale using a non-parametric kernel tool. The sharpest gradients are saved as possible indicators of the water surface. The points for all the strong gradients in each column of an image are then evaluated to determine which set of those gradients best fit the expected angle of the water line (based on the rotation of the camera). Considerable amount of work is performed to ignore anomalous points,
+false lines, glint, etc. The best linear fit for the detected points is considered to be the water line. Interestingly,
+this line’s equation is expressed in pixel coordinates and may fall ‘between’ two pixels, resulting in sub-pixel resolution of the measurements.
+
+- The second principle of the GaugeCam system is the ability to automatically translate the location of the water line expressed in the pixel coordinates into real world coordinates. For this, the GaugeCam system uses a set of eight bow ties shaped fiducials placed in two columns of four rows, and leaving a blank column between the two column fiducials (Figure \@ref(fig:GC-background)). The GaugeCam software automatically detects the center of the fiducials using blob analysis, which real world coordinates are known. A piecewise linear regression is then used to create the transfer matrix to relate the pixel to the world coordinates. 
+
 
 </br>
 
 <div class="figure" style="text-align: center">
-<img src="pictures/GC_background.png" alt="Target background (dimensions 1.2m&amp;times;0.9m) with bowties fiducials located in two columns and four rows leaving a blank column in between where the water line is automatically detected" width="50%" />
-<p class="caption">(\#fig:GC-background)Target background (dimensions 1.2m&times;0.9m) with bowties fiducials located in two columns and four rows leaving a blank column in between where the water line is automatically detected</p>
+<img src="pictures/GC_background.png" alt="Target background (dimensions 1.2m x 0.9m) with bowties fiducials located in two columns and four rows leaving a blank column in between where the water line is automatically detected" width="50%" />
+<p class="caption">(\#fig:GC-background)Target background (dimensions 1.2m x 0.9m) with bowties fiducials located in two columns and four rows leaving a blank column in between where the water line is automatically detected</p>
 </div>
 </br>
-
-
-
-
-
-
-### Background 
 
 ## Field site details
 
@@ -81,7 +90,280 @@ link-citations: yes
 
 ### Image processing principles
 
+- The reference image
+    - Chosen to have all fiducials visible
+    - In the reference image, the linear interpolation of the pixel to world coordinates is established.
+- All images are first superimposed to the reference image. We have observed that despite the apparent sturdiness of cameras installed in the field, the cameras over time tend to move, shifting images a bit (e.g., one to several pixels). To superimpose all images to the reference image, the top two fiducial centers are matched (exact procedure needs to be explained here).
+- 
+
 ### Statistical analysis
+
+Motivated by the above scientific reasons, we formulate our problem as a set of statistical hypothesis testings. They are as follows
+
+- Hypothesis 1: Because of the change in the incident light angle, the errors on nighttime and daytime pictures should be significantly different. More accurately, the nighttime pictures should generally overestimate the measurements more than the daytime pictures.
+- Hypothesis 2: 
+    + 2a) The nighttime measurements should be positively biased.
+    + 2b) The daytime measurements should be generally unbiased.
+- Hypothesis 3: Because the nighttime pictures have to be corrected more often because of movement, than daytime pictures, the standard deviation of the errors should be larger than those of the daytime ones.
+- Hypothesis 4: Because of image distortion, the distribution of errors (bias and standard deviation) for measurements at low stages (less  than 30 cm) should be different than the ones at high stage (greater than 70 cm).
+
+
+Testing the above hypotheses are quite common in the statistical literature when the observations are assumed to be independent. But the presence of time series correlation makes them complicated. Ignoring the correlated time series structure would make the study quite unreliable; so we consider the structure for all the tests and also describe the tests in such set-ups. Information loss is another issue. For example, for testing Hypothesis 1, the simplest approach would be to choose the daytime observations and the nighttime observations and to perform the tests based on them. But in this way, the observations not falling in any of the categories would not be used and lead to information loss which would make the tests less powerful.  
+
+For the daytime images, the source of the light used is sun while at night it is the infrared illuminator. Because of the different nature of the angular variation in day and night, the only change is due to the changes in stage. Thus, for the daytime and the nighttime measurements those are within 10 cm of the same stage (e.g. three groups of values: included between 15 and 25 cm, 35 cm and 45 cm, 55 cm and 65 cm, and 75 and 85 cm), the corresponding GaugeCam bias are possibly different. This fits the set-up of the Hypothesis 1 along with considering the indicators for the specific cases. To Test Hypotheses 3 and 4, we assume the time series correlation structure is same for all the observations.
+
+#### Data description and pre-processing
+A total of 13905 images were collected by GaugeCam between February 09, 2012 08:30AM and July 24, 2012 07:15PM at the time differences of 15 minutes. Correspondingly, for a subset of 1086 images, the actual observations were obtained visually. We assume that the GaugeCam errors of value outside $\pm 2$ cm are due to device malfunctioning possibly due to a heavy wind or a heavy tide etc. and not due to some physical factors we are interested in. Thus, we discard those images and consider the rest of the 1033 images. The scatter plot of the retained GaugeCam erros is provided in the right panel of Figure 1.
+
+As actually they are time series observations, the time series is provided in Figure 1. The observations are not at the same time differences. Particularly there is large time gap between the 529-th and the 530-th image of more than 21 days due to the equipment failure though the same instrument was installed later and hence we do not consider the data to be two separate time series. As it is possible that some bias remains after repairing, we keep an indicator which indicates the change point, i.e. it takes value 1 after repairing and 0 till the 529-th observation. Also we are interested to study the variation of the GaugeCam error with the true water levels, ignoring the time series structure, we provide the scatter plot in Figure 2. %The two images along with the mean levels are provided in Figure 3. Significant difference between the mean levels is clearly observable. We calculate the variograms of GaugeCam errors for these two parts and presented in Figure 4. It is clear from Figure 4 that the observations are correlated and ignoring the time series structure is not recommendable.
+
+
+```
+## Parsed with column specification:
+## cols(
+##   date = col_character(),
+##   imagename = col_character(),
+##   height = col_double()
+## )
+```
+
+```
+## Parsed with column specification:
+## cols(
+##   imagename = col_character(),
+##   indic = col_double(),
+##   height = col_double()
+## )
+```
+
+<div class="figure" style="text-align: center">
+<img src="GC-NR-paper_files/figure-html/GC-error-TS-1.png" alt="Whole time series plot of the GaugeCam errors" width="100%" />
+<p class="caption">(\#fig:GC-error-TS)Whole time series plot of the GaugeCam errors</p>
+</div>
+
+<div class="figure" style="text-align: center">
+<img src="GC-NR-paper_files/figure-html/GC-error-vs-VisualDataTS-1.png" alt="Time series of the GaugeCam errors versus the Visual data" width="100%" />
+<p class="caption">(\#fig:GC-error-vs-VisualDataTS)Time series of the GaugeCam errors versus the Visual data</p>
+</div>
+
+<div class="figure" style="text-align: center">
+<img src="GC-NR-paper_files/figure-html/GC-error-vs-VisualData-1.png" alt="Scatter plot of the GaugeCam errors versus the Visual data" width="100%" />
+<p class="caption">(\#fig:GC-error-vs-VisualData)Scatter plot of the GaugeCam errors versus the Visual data</p>
+</div>
+
+#### Statistical model
+
+
+
+
+
+```
+## [1] 0.001507688
+```
+
+```
+## [1] 9.539187e-14
+```
+
+
+
+We assume that the time series of GaugeCam errors is dependent on the corresponding predictors- actual days (this term is important as this term incorporates time trend if present), indicators for daytime, nighttime and the change-point as follows
+
+\begin{equation}\label{e:OLS}
+  Y_t = \beta_0 + \beta_1 Day_t + \beta_2 \delta_{(t > changepoint)} + \beta_3 \delta_{(t \in daytime)} + \beta_4 \delta_{(t \in nighttime)} + \epsilon_t,
+\end{equation}
+
+
+where $Y_t$ denotes the $t$-th GaugeCam error, $Day_t$ is the exact day for the $t$-th observation, $\delta_{(t \in daytime)}$ and $\delta_{(t \in nighttime)}$ are the indicators for day and night, i.e. $\delta_{(t \in daytime)} = 1$ if $t$-th scan was obtained during the daytime and 0 otherwise and similarly the definition of $\delta_{(t \in nighttime)}$ follows. The indicator $\delta_{(t > changepoint)} = 1$ if $t$ is larger than the change-point, i.e. 529 as there is large gap between the 529-th image and the 530-th image and 0 otherwise. Suppose the series was observed at $t=1, \ldots,T$ time points. Here $\beta_0$ denotes the intercept term, $\beta_1, \beta_2, \beta_3$ and $\beta_4$ are other regression coefficients. We assume that the error terms $\epsilon_t$ follow a zero mean Gaussian process over time with Matérn covariance structure, i.e. for each $t$, $E(\epsilon_t) = 0$ with
+
+$$Cov(\epsilon_t, \epsilon_{t'}) = \frac{\sigma^2}{\Gamma(\nu) 2^{\nu - 1}} \left( \frac{|Day_t - Day_{t'}|}{\rho} \right)^{\nu} \mathbf{K}_{\nu} \left( \frac{|Day_t - Day_{t'}|}{\rho} \right) + \tau^2 \delta_{(t = t')}; t,t' =1, \ldots,T.$$
+
+where $\sigma^2$, $\tau^2$, $\rho$ and $\nu$ denote the partial sill, nugget, range and smoothness parameters respectively. The indicator $\delta_{(t = t')}=1$ if $t=t'$ and 0 otherwise. The term $\mathbf{K}_{\nu}$ denotes the modified Bessel function of second kind. The covariance structure is largely used in time series analysis and the spatial statistics literature which a particular form of the stationary covariance function, i.e. the covariance between the observations at $Day_t$ and $Day_{t'}$ is dependent only on the difference $|Day_t - Day_{t'}|$ and a decreasing function of the difference. Often this is quite a realistic assumption, e.g. two observations at small time gaps have higher correlation than two observations at larger time gaps.
+
+In a vectorized notation, we fit the model
+
+$$\mathbf{Y} = \mathbf{X} \beta + \mathbf{E}; ~~ \mathbf{E} \sim N(\mathbf{0}, \Sigma)$$
+
+where $\mathbf{Y} = (Y_1, \ldots, Y_T)'$, $\mathbf{X}$ denotes the $T\times 5$-dimensional design matrix where the the $t$-th row vector of $\mathbf{X}$ is given by $(1, Day_t, \delta_{(t > changepoint)}, \delta_{(t \in daytime)}, \delta_{(t \in nighttime)})'$, $\mathbf{E} = (\epsilon_1, \ldots, \epsilon_T)'$ and $\Sigma$ denotes the Matérn covariance matrix with $(t,t')$-th element given by $Cov(\epsilon_t, \epsilon_{t'})$. The vector $\beta$ denotes the vector $(\beta_0, \beta_1, \beta_2, \beta_3, \beta_4)'$. We denote the Matérn parameters by $\theta = (\sigma^2, \tau^2, \rho, \nu)$ and so $ \Sigma$ by $\Sigma(\theta)$ as a function of the parameters.
+
+#### Inference
+
+We estimate the parameters $\beta_0,\beta_1, \beta_2,\beta_3, \beta_4$, $\sigma^2,\tau^2,\rho$ and $\nu$ using maximum likelihood estimates by profile likelihood approach. There is no closed form solution of the parameter vector $\theta$. Suppose the estimated vector is denoted by $\hat{\theta}$. Then, the MLE of $\beta$ is given by 
+$\hat{\beta} = \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{Y}. \right)$. %The table of the estimated values of the parameters are given in Table 1.
+
+\subsection{Hypothesis Testing}
+Though it is not our main aim in this analysis, it is important to notice whether the change-point factor is significant or not. To test this, we need to test the hypothesis $$H_0: \beta_2 = 0 ~~~ versus~~~ H_A: \beta_2 \neq 0$$
+
+
+
+Here, after plugging-in the estimates $\hat{\theta}$, we have $\hat{\beta} \sim N(\beta, \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1})$. Thus, consider the vector $\psi = (0, 0, 1, 0, 0)$ such that $\psi' \beta = \beta_2$. Now, we have $\hat{\beta}_2 = \psi'\hat{\beta} \sim N(\beta_2, \psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi)$. Under $H_0$, we have $\hat{\beta}_2 \sim N(0, \psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi)$ and the corresponding $z$ score is given by $z_{changepoint} = \hat{\beta}_2 / \sqrt{\psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi}$. The corresponding $p$-value will be $p_{changepoint} = 2P(Z > |z_{changepoint}|)$ where $Z \sim N(0, 1)$. Next, we discuss the four tests mentioned in Section 1.2.
+
+\subsubsection{Hypothesis 1}
+We are actually interested in testing the following null hypothesis
+$$H_0: \beta_3 = \beta_4 ~~~ versus~~~ H_A: \beta_3 < \beta_4$$
+
+We consider the contrast $\phi = (0, 0, 0, 1, -1)$ such that $\phi' \beta = \beta_3 - \beta_4$ which is zero under the null hypothesis. We have $\phi'\hat{\beta} \sim N(\phi'\beta, \phi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \phi)$. Under $H_0$, we have $\phi'\hat{\beta} \sim N(0, \phi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \phi)$ and the corresponding $z$ score is given by $z_1 = \phi'\hat{\beta} / \sqrt{\phi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \phi}$. The corresponding $p$-value will be $p_1 = P(Z < z_1)$ where $Z \sim N(0, 1)$.
+
+\subsubsection{Hypothesis 2a}
+Here we are interested in testing the following null hypothesis
+$$H_0: \beta_4 = 0 ~~~ versus~~~ H_A: \beta_4 > 0$$
+Consider the vector $\psi = (0, 0, 0, 0, 1)$ such that $\psi' \beta = \beta_4$. Now, we have $\hat{\beta}_4 = \psi'\hat{\beta} \sim N(\beta_4, \psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi)$. Under $H_0$, we have $\hat{\beta}_4 \sim N(0, \psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi)$ and the corresponding $z$ score is given by $z_{2a} = \hat{\beta}_4 / \sqrt{\psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi}$. The corresponding $p$-value will be $p_{2a} = P(Z > z_{2a})$ where $Z \sim N(0, 1)$.
+\subsubsection{Hypothesis 2b}
+Here we are interested in testing the following null hypothesis
+$$H_0: \beta_3 = 0 ~~~ versus~~~ H_A: \beta_3 \neq 0$$
+Consider the vector $\psi = (0, 0, 0, 1, 0)$ such that $\psi' \beta = \beta_3$. Now, we have $\hat{\beta}_3 = \psi'\hat{\beta} \sim N(\beta_3, \psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi)$. Under $H_0$, we have $\hat{\beta}_3 \sim N(0, \psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi)$ and the corresponding $z$ score is given by $z_{2b} = \hat{\beta}_3 / \sqrt{\psi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \psi}$. The corresponding $p$-value will be $p_{2b} = 2P(Z > |z_{2b}|)$ where $Z \sim N(0, 1)$.
+\subsubsection{Hypothesis 3}
+Here suppose the whole data is given by $\mathbf{Y} = (\mathbf{Y}_1, \mathbf{Y}_2)'$ where $\mathbf{Y}_1$ and $\mathbf{Y}_2$ correspond to the daytime observations and the nighttime observations respectively. Let the corresponding design matrices are $\mathbf{X}_1$ and $\mathbf{X}_2$ respectively. The variances of the two parts are $\sigma_1^2$ and $\sigma_2^2$. We assume that both the parts have the same Matérn correlation parameters set equal to the corresponding MLEs obtained from the whole data, including the observations not falling in any of the categories.
+
+\[
+\begin{bmatrix}
+    \mathbf{Y}_1 \\
+    \mathbf{Y}_2
+\end{bmatrix}
+\sim N \left(
+\begin{bmatrix}
+    \mathbf{X}_1 \\
+    \mathbf{X}_2
+\end{bmatrix}
+\beta, 
+\begin{bmatrix}
+    \sigma_1^2 \Sigma_{11} & \sigma_1 \sigma_2  \Sigma_{12} \\
+    \sigma_1 \sigma_2 \Sigma_{21} & \sigma_2^2 \Sigma_{22}
+\end{bmatrix}
+ \right)
+\]
+Here we are interested in testing the following null hypothesis
+$$H_0: \sigma_1^2 = \sigma_2^2 ~~~ versus~~~ H_A: \sigma_1^2 < \sigma_2^2$$
+
+Using the theory of conditional distribution of two multivariate normal vectors, we have
+\[
+\begin{bmatrix}
+    \mathbf{Y}_1 - \mathbf{X}_1 \beta \\
+    (\mathbf{Y}_2 - \mathbf{X}_2\beta) - \frac{\sigma_2}{\sigma_1} \Sigma_{21} \Sigma_{11}^{-1} (\mathbf{Y}_1 - \mathbf{X}_1 \beta)
+\end{bmatrix}
+\sim N \left(
+\begin{bmatrix}
+    \mathbf{0} \\
+    \mathbf{0}
+\end{bmatrix}
+, 
+\begin{bmatrix}
+    \sigma_1^2 \Sigma_{11} & \mathbf{0} \\
+    \mathbf{0} & \sigma_2^2 (\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})
+\end{bmatrix}
+ \right)
+\]
+
+Thus, the corresponding F-test statistic is given by 
+$$F_3 = \frac{(\mathbf{Y}_1 - \mathbf{X}_1 \beta)' \Sigma_{11}^{-1} (\mathbf{Y}_1 - \mathbf{X}_1 \beta)}{[(\mathbf{Y}_2 - \mathbf{X}_2\beta) -  \Sigma_{21} \Sigma_{11}^{-1} (\mathbf{Y}_1 - \mathbf{X}_1 \beta)]' (\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1} [(\mathbf{Y}_2 - \mathbf{X}_2\beta) -  \Sigma_{21} \Sigma_{11}^{-1} (\mathbf{Y}_1 - \mathbf{X}_1 \beta)]}$$
+Under $H_0$, $F_3$ is distributed as the F distribution with degrees of freedom $N_1$ and $N_2$ where $N_1$ and $N_2$ are equal to the number of daytime observations and the number of nighttime observations. The corresponding $p$-value will be $p_{3} = P(F < F_3)$ where $F \sim F(N_1, N_2)$.
+
+subsubsection{Hypothesis 4}
+Here we fit the model 
+\begin{equation}\label{e:OLS}
+  Y_t = \beta_0 + \beta_1 Day_t + \beta_2 \delta_{(t > changepoint)} + \beta_3 \delta_{(t \in daytime)} + \beta_4 \delta_{(t \in nighttime)} + \beta_5 \delta_{(Z_t <30)} + \beta_6 \delta_{(Z_t > 70)} + \epsilon_t,
+\end{equation}
+
+where $Z_t$ denotes the true water level at the $t$-th time point, $\delta_{(Z_t <30)}$ and $\delta_{(Z_t > 70)}$ are the indicators for the true values less than 30 cm and more than 70 cm respectively and all other notations are in Equation 1.
+
+Again suppose the partial data is given by $\mathbf{Y} = (\mathbf{Y}_1, \mathbf{Y}_2)'$ where $\mathbf{Y}_1$ and $\mathbf{Y}_2$ correspond to the observations with true value less than 30 cm and more than 70 cm respectively. Let the corresponding design matrices are $\mathbf{X}_1$ and $\mathbf{X}_2$ respectively according to Equation 2. The variances of the two parts are $\sigma_1^2$ and $\sigma_2^2$. Here we fit the whole data and estimate $\beta$ and the correlation matrix, say, $C$. We assume that both the parts have the same Matérn correlation parameters set equal to the MLEs obtained from the whole data. Again
+\[
+\begin{bmatrix}
+    \mathbf{Y}_1 \\
+    \mathbf{Y}_2
+\end{bmatrix}
+\sim N \left(
+\begin{bmatrix}
+    \mathbf{X}_1 \\
+    \mathbf{X}_2
+\end{bmatrix}
+\beta, 
+\begin{bmatrix}
+    \sigma_1^2 \Sigma_{11} & \sigma_1 \sigma_2  \Sigma_{12} \\
+    \sigma_1 \sigma_2 \Sigma_{21} & \sigma_2^2 \Sigma_{22}
+\end{bmatrix}
+ \right)
+\]
+Here we are interested in testing the following null hypothesis
+$$H_0: \beta_5 = \beta_6, \sigma_1^2 = \sigma_2^2 ~~~ versus~~~ H_A: \beta_5 \neq \beta_6, \sigma_1^2 \neq \sigma_2^2$$
+As this is a multiple testing, we perform a test of level 0.025 for checking $\beta_5 = \beta_6$ and a test of level 0.025 for checking $\sigma_1^2 = \sigma_2^2$. If any of them fails, we reject $H_0$.
+
+First, we assume that $\sigma_1^2 = \sigma_2^2$. We consider the contrast $\phi = (0, 0, 0, 0, 0, 1, -1)$ such that $\phi' \beta = \beta_5 - \beta_6$ which is zero under the null hypothesis. We have $\phi'\hat{\beta} \sim N(\phi'\beta, \phi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \phi)$. Suppose the estimate of $\beta$ obtained from the whole data is $\hat{\beta}$. Under $H_0$, we have $\phi'\hat{\beta} \sim N(0, \phi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \phi)$ and the corresponding $z$ score is given by $z_4 = \phi'\hat{\beta} / \sqrt{\phi' \left(\mathbf{X}' \Sigma(\hat{\theta})^{-1} \mathbf{X} \right)^{-1} \phi}$. The corresponding $p$-value will be $p_{4a} = 2P(Z > |z_4|)$ where $Z \sim N(0, 1)$.
+
+Now, the test statistic for $\sigma_1^2 = \sigma_2^2$, say, $F_4$ is obtained similarly to $F_3$. Because of being a two-sided alternative here, the p-value would be different here.
+
+Under $H_0$, $F_4$ is distributed as the F distribution with degrees of freedom $N_1$ and $N_2$ where $N_1$ and $N_2$ are equal to the number of observations with true value less than 30 cm and the number of observations with true value more than 70 cm. The corresponding $p$-value will be $p_{4b} = P(F > max{\lbrace F_4, 1 / F_4 \rbrace}) + P(F < min{\lbrace F_4, 1 / F_4 \rbrace})$ where $F \sim F(N_1, N_2)$. Finally the overall $p$-value is $p_4 = p_{4a} p_{4b}$.
+% I would separate into daytime and nighttime measurements, and in stage groups,  and then I would test in each group whether the distributions of errors are different, and I would evaluate whether the bias and standard errors become different for different stage groups.
+
+Now, similar to the test of Hypothesis 1, we can test the cases of true observations lying between 15 and 25 cm, 35 cm and 45 cm, 55 cm and 65 cm, and 75 and 85 cm. We denote the test statistics by $z_{(15,25)}$, $z_{(35, 45)}$, $z_{(55, 65)}$ and $z_{(75, 85)}$. The $p$-values are $p_{(15,25)}$, $p_{(35, 45)}$, $p_{(55, 65)}$ and $p_{(75, 85)}$.
+
+\section{Results}
+The $z$-scores and the $p$-values obtained from testing the above hypotheses are provided in Table 1.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+Hypothesis & $z$-score & $p$-value \\ 
+  \hline
+change-point & 0.6185 & 0.5363 \\ 
+  1 & -2.6280 & 0.0043 \\ 
+  2a & 2.6406 & 0.0041 \\ 
+  2b & 0.1431 & 0.8862 \\ 
+  3 & 0.7364 & $2.38 \cdot 10^{-18}$ \\ 
+  4a & -3.6441 & $2.68 \cdot 10^{-4}$ \\ 
+  4b & 0.3666 & $8.85 \cdot 10^{-13}$ \\ 
+  (15, 25) & 3.5506 & 0.0004 \\ 
+  (35, 45) & 0.8422 & 0.3997 \\ 
+  (55, 65) & -0.5329 & 0.5941 \\ 
+  (75, 85) & -5.0804 & $3.76 \cdot 10^{-7}$ \\ 
+   \hline
+\end{tabular}
+\caption{The $z$-scores and the corresponding $p$-values.}
+\end{table}
+
+The 70\%, 80\%, 90\% and 95\% confidence intervals of the mean GaugeCam error under situations are provided in Table 2. To calculate these confidence intervals, first we remove the temporal trend and the effect of the change-point. The different physical situations we consider are- 1. overall, i.e. without any further small-scale condition, 2. overall, $<$30, i.e. in case the true water level is less than 30 cm, 3. overall, $>$ 70, i.e. in case the true water level is more than 70 cm, 4. daytime, i.e. in case the data is observed between 8:30 AM and 5:45 PM, 5. nighttime, i.e. in case the data is observed between 7:45 PM and 4:30 AM next day, 6. daytime, 15-25, i.e. in case the data is observed during the daytime and the true water level is between 15 and 25 cm, 7. nighttime, 15-25, i.e. in case the data is observed during the nighttime and the true water level is between 15 and 25 cm, 8. daytime, 35-45, i.e. in case the data is observed during the daytime and the true water level is between 35 and 45 cm, 9. nighttime, 35-45, i.e. in case the data is observed during the nighttime and the true water level is between 35 and 45 cm, 10. daytime, 55-65, i.e. in case the data is observed during the daytime and the true water level is between 55 and 65 cm, 11. nighttime, 55-65, i.e. in case the data is observed during the nighttime and the true water level is between 55 and 65 cm, 12. daytime, 75-85, i.e. in case the data is observed during the daytime and the true water level is between 75 and 85 cm and 13. nighttime, 75-85, i.e. in case the data is observed during the nighttime and the true water level is between 75 and 85 cm.
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+category &  70\% & 80\% & 90\% & 95\% \\ 
+  \hline
+overall & (-2.187, 6.015) & (-3.157, 6.985) & (-4.595, 8.423) & (-5.842 , 9.670) \\ 
+  overall, $<$30 & (-0.361, 0.898) & (-0.510, 1.047) & (-0.731, 1.268) & (-0.922, 1.459) \\ 
+  overall, $>$ 70 & (0.728 , 2.025) & (0.575 , 2.178) & (0.348 , 2.406) & (0.151 , 2.603) \\ 
+  daytime & (-1.829 , 1.426) & (-2.214 , 1.811) & (-2.784 , 2.382) & (-3.279 , 2.876) \\ 
+  nighttime & (-1.114 , 2.142) & (-1.499 , 2.527) & (-2.070 , 3.098) & (-2.565 , 3.593) \\ 
+  daytime, 15-25 & (0.448 , 2.165) & (0.245 , 2.368) & (-0.055 , 2.669) & (-0.316 , 2.930) \\ 
+  nighttime, 15-25 & (-1.209 , 0.560) & (-1.419 , 0.769) & (-1.729 , 1.079) & (-1.998 , 1.349) \\ 
+  daytime, 35-45 & (-2.426 , 0.123) & (-2.727 , 0.424) & (-3.174 , 0.871) & (-3.561 , 1.258) \\ 
+  nighttime, 35-45 & (-2.268 , 0.307) & (-2.573 , 0.611) & (-3.024 , 1.063) & (-3.415 , 1.454) \\ 
+  daytime, 55-65 & (-2.189 , 1.223) & (-2.593 , 1.627) & (-3.191 , 2.225) & (-3.710 , 2.744) \\ 
+  nighttime, 55-65 & (-1.151 , 2.287) & (-1.557 , 2.694) & (-2.160 , 3.297) & (-2.682 , 3.819) \\ 
+  daytime, 75-85 & (-1.101 , 0.632) & (-1.306 , 0.837) & (-1.610 , 1.140) & (-1.873 , 1.404) \\ 
+  nighttime, 75-85 & (2.897 , 4.401) & (2.719 , 4.579) & (2.455 , 4.843) & (2.227 , 5.072) \\ 
+   \hline
+\end{tabular}
+\caption{Confidence intervals (in millimeters) of the mean GaugeCam error under different situations after removing the effect of time and the change-point.}
+\end{table}
+
+
+\section{Discussions and Conclusions}
+Instead of partitioning the data according to different levels of the micro-scale physical factors, we consider all the data together to perform the tests. Also, instead of considering the observations to be independent across time, we consider isotropic Matérn covariance structure which captures the temporal correlation among the observations making the model underlying the hypothesis testing problems more realistic.
+
+From the Table 1, we can notice the following things.
+
+\begin{itemize}
+\item For the change-point analysis, we notice high $p$-value and hence we fail to reject the null hypothesis that the change point is not significant and hence, the mean GaugeCam error before the gap and after the gap are conformable with each other.
+\item For testing the hypothesis 1, we observe very small $p$-value leading us to the rejection of the null hypothesis. The physical reasons also support our conclusion that the GaugeCam error during daytime has a smaller mean than the mean GaugeCam error during nighttime.
+\item For testing the hypothesis 2a, again we observe very small $p$-value and hence we reject the null hypothesis. Thus, the data support in concluding that the mean GaugeCam error during nighttime is positive, i.e. the nighttime observations overestimate the water level.
+\item For testing the hypothesis 2b, we notice high $p$-value and hence we fail to reject $H_0$ that the daytime observations are unbiased.
+\item For testing the hypothesis 3, the $p$-value is extremely small which supports the fact the standard deviation of the nighttime biases are larger than that of the daytime biases and hence suggests more often correction of the nighttime biases. 
+\item For hypothesis 4, we do it separately for the means and the variances at the levels 2.5\% each. The $p$-value corresponding to testing the equality of the means is less than 0.025. The $p$-value for testing the equality of the variances is extremely small indicating that the data supports the fact that the mean and variances of the GaugeCam errors are different for measurements at low stage and at high stage.
+\item For testing the equality of the means for the daytime and the nighttime gaugeCam errors within 10 cm of the same stage, we see that the $z$-score decreases gradually with respect to the true water level. For the cases between 15 and 25 cm and between 75 and 85 cm, we reject the null hypotheses of the same means. For the middle two cases, we fail to reject the null hypotheses indicating that the daytime and the nighttime errors are similarly manifested for the middle range values of the true water level.
+\end{itemize}
+The 70\%, 80\%, 90\% and 95\% confidence intervals provided in Table 2 show that the intervals are broader in the overall case and much finer after fixing different levels of the micro-scale physical properties. For the cases 3 and 13, notice that the value zero is not included in any of the intervals supporting the fact that the instrument GaugeCam overestimates the water level with high chance in these two cases and hence needs necessary correction.
+
 
 - 1000 images 'manually' read compared with automatic detection.
 - Statistical models used
